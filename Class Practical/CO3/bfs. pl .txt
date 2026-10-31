@@ -1,0 +1,36 @@
+% Graph: node, connected node, heuristic value
+
+h(a, 5).
+h(b, 3).
+h(c, 2).
+h(d, 1).
+h(e, 0).
+
+edge(a, b).
+edge(a, c).
+edge(b, d).
+edge(c, e).
+edge(d, e).
+
+% Best First Search
+best_first(Start, Goal, Path) :-
+    search([Start], Goal, [], RevPath),
+    reverse(RevPath, Path).
+
+search([Goal|_], Goal, Visited, [Goal|Visited]).
+
+search([Current|Rest], Goal, Visited, Path) :-
+    findall(H-Next,
+            (edge(Current, Next),
+             \+ member(Next, Visited),
+             h(Next, H)),
+            Children),
+    sort(Children, Sorted),
+    get_nodes(Sorted, Nodes),
+    append(Nodes, Rest, NewQueue),
+    search(NewQueue, Goal, [Current|Visited], Path).
+
+get_nodes([], []).
+
+get_nodes([_-Node|T], [Node|R]) :-
+    get_nodes(T, R).
